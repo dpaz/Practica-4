@@ -57,7 +57,46 @@
      Para poder definir fácilmente enemigos parecidos creados a partir
      de una misma plantilla, se pasará un segundo argumento al
      constructor con valores alternativos para algunas de las
-     propiedades de la plantilla.
+     propiedades de la plantilla. {}
 
 */
 
+describe("EnemySpec.js",function(){
+
+  beforeEach(function(){
+    loadFixtures('index.html');
+    canvas = $('#game')[0];
+    expect(canvas).toExist();
+    ctx = canvas.getContext('2d');
+    expect(ctx).toBeDefined();
+    oldGame = Game;
+    Game = {width: 320, height: 480};
+    var enemies = {
+      basic: { x: 100, y: -50, sprite: 'enemy_purple', B: 100, C: 2 , E: 100 }
+    };
+
+  });
+  afterEach(function(){
+    Game = oldGame;
+  });
+
+
+
+  it("La nave se mueve correctamente",function(){
+
+    Game = oldGame;
+    board = new GameBoard();
+    enemy = new Enemy(enemies.basic);
+    board.add(enemy);
+    
+    enemy.step(1);
+    expect(enemy.x).toBe(190.92974268256818);
+    expect(enemy.y).toBe(50);
+
+  });
+
+  it("Si salimos del tablero se elimina",function(){
+    
+  });
+
+});
