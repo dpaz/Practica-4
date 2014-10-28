@@ -206,21 +206,23 @@ var GameBoard = function() {
     // Iterador que aplica el método funcName a todos los
     // objetos de objects
     this.iterate = function(funcName) {
-	// Convertimos en un array args (1..)
-	var args = Array.prototype.slice.call(arguments,1);
+        // Convertimos en un array args (1..)
+        var args = Array.prototype.slice.call(arguments,1);
 
-	for(var i=0, len=this.objects.length; i<len;i++) {
-	    var obj = this.objects[i];
-	    obj[funcName].apply(obj,args)
-	}
+        this.objects.map(function(element){element[funcName].apply(element,args)});
+
+        
+        
     };
 
     // Devuelve el primer objeto de objects para el que func es true
     this.detect = function(func) {
-	for(var i = 0,val=null, len=this.objects.length; i < len; i++) {
-	    if(func.call(this.objects[i])) return this.objects[i];
-	}
-	return false;
+
+        var arr = this.objects.filter(function(element){if(func.call(element))return element;});
+        
+        if(arr.length!= 0){return arr[0];}    
+        return false;
+        
     };
 
     // Cuando Game.loop() llame a step(), hay que llamar al método
