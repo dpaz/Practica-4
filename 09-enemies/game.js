@@ -4,7 +4,8 @@ var sprites = {
     enemy_purple: { sx: 37, sy: 0, w: 42, h: 43, frames: 1 },
     enemy_bee: { sx: 79, sy: 0, w: 37, h: 43, frames: 1 },
     enemy_ship: { sx: 116, sy: 0, w: 42, h: 43, frames: 1 },
-    enemy_circle: { sx: 158, sy: 0, w: 32, h: 33, frames: 1 }
+    enemy_circle: { sx: 158, sy: 0, w: 32, h: 33, frames: 1 },
+    explosion:{ sx: 0, sy: 64, w: 64, h: 64, frames: 12 }
 };
 
 
@@ -125,41 +126,53 @@ var PlayerShip = function() {
     this.y = Game.height - 10 - this.h;
     this.vx = 0;
     this.ok = true;
+
     this.reloadTime = 0.25;  // Un cuarto de segundo para poder volver a disparar
     this.reload = this.reloadTime;
 
     this.maxVel = 200;
 
     this.step = function(dt) {
-	if(Game.keys['left']) { this.vx = -this.maxVel; }
-	else if(Game.keys['right']) { this.vx = this.maxVel; }
-	else { this.vx = 0; }
+    	if(Game.keys['left']) { this.vx = -this.maxVel; }
+    	else if(Game.keys['right']) { this.vx = this.maxVel; }
+    	else { this.vx = 0; }
 
-	this.x += this.vx * dt;
+    	this.x += this.vx * dt;
 
-	if(this.x < 0) { this.x = 0; }
-	else if(this.x > Game.width - this.w) { 
-	    this.x = Game.width - this.w 
-	}
+    	if(this.x < 0) { this.x = 0; }
+    	else if(this.x > Game.width - this.w) { 
+    	    this.x = Game.width - this.w 
+    	}
 
-	this.reload-=dt;
-    if(!Game.keys['fire']){
-        this.ok = true;
-    }
-	else if(Game.keys['fire'] && this.reload < 0 && this.ok) {
-	    // Esta pulsada la tecla de disparo y ya ha pasado el tiempo reload
-	    
-        this.ok = false;
-	    this.reload = this.reloadTime;
+    	this.reload-=dt;
+        if(!Game.keys['fire']){
+            this.ok = true;
+        }
+    	if(Game.keys['fire'] && this.reload < 0 && this.ok) {
+    	    // Esta pulsada la tecla de disparo y ya ha pasado el tiempo reload
+    	    this.ok = false;
+    	    this.reload = this.reloadTime;
 
-	    // Se añaden al gameboard 2 misiles 
-	    this.board.add(new PlayerMissile(this.x,this.y+this.h/2));
-	    this.board.add(new PlayerMissile(this.x+this.w,this.y+this.h/2));
-	}
+    	    // Se añaden al gameboard 2 misiles 
+    	    this.board.add(new PlayerMissile(this.x,this.y+this.h/2));
+    	    this.board.add(new PlayerMissile(this.x+this.w,this.y+this.h/2));
+    	}
+        if(Game.keys['fbIzq'] && this.reload < 0 && this.ok){
+            this.ok = false;
+            this.reload = this.reloadTime;           
+            this.board.add(new FireBall(this.x,this.y+this.h/2,"izq"));
+            
+        }
+        if(Game.keys['fbDer'] && this.reload < 0 && this.ok){
+            this.ok = false;
+            this.reload = this.reloadTime;     
+            this.board.add(new FireBall(this.x+this.w,this.y+this.h/2,"der"));
+            
+        }
     }
 
     this.draw = function(ctx) {
-	   SpriteSheet.draw(ctx,'ship',this.x,this.y,0);
+	SpriteSheet.draw(ctx,'ship',this.x,this.y,0);
     }
 }
 
@@ -275,17 +288,46 @@ Enemy.prototype.step = function(dt) {
        this.x > Game.width) {
 	this.board.remove(this);
     }
-}
+};
 
 // Metodo draw, que anadimos al prototipo para que cada instancia de
 // Enemy no tenga una copia de el
 Enemy.prototype.draw = function(ctx) {
     SpriteSheet.draw(ctx,this.sprite,this.x,this.y);
-}
+};
 
 
+var FireBall = function(x,y,rumbo) {
+    
+    this.w = SpriteSheet.map['explosion'].w;
+    this.h = SpriteSheet.map['explosion'].h;
+    this.x = x - this.w/2; 
+    this.rumbo = rumbo;
+    this.y = y - this.h; 
+    this.vx = -700;
+    this.x0 = 10;
+};
+
+FireBall.prototype.step = function(dt)  {
+    
+    if(this.rumbo=='izq'){
+        console.log('entro izq')
+        this.x += this.vx * dt;
+        this.x0 += this.x0 * dt;
+        console.log('salgo izq');
+    }else{
+        this.x -= this.vx * dt;
+        this.x0 -= this.x0 * dt;
+    }
+    this.vy = -5*this.x0^2 +6*this.x0 +100;
+    this.y += this.vy  * dt;
+    if(this.y < -this.h) { this.board.remove(this); }
+};
+
+FireBall.prototype.draw = function(ctx)  {
+    SpriteSheet.draw(ctx,'explosion',this.x,this.y,3);
+};
 
 $(function() {
     Game.initialize("game",sprites,startGame);
 });
-
