@@ -28,6 +28,7 @@ describe("Clase Fireball",function(){
       var ship = new PlayerShip();
 
       board.add(ship);
+      Game.keys['fire'] = false;
       Game.keys['fbIzq'] = true;
       spyOn(board,'add').andCallThrough();;
       

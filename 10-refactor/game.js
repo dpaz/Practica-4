@@ -9,7 +9,7 @@ var enemies = {
     // B, C y E substituirán a los valores por defecto definidos en la
     // variable baseParameters del constructor Enemy(). Ver
     // comentarios en el código del constructor al final del fichero.
-    basic: { x: 100, y: -50, sprite: 'enemy_purple', B: 100, C: 4, E: 100 }
+    basic: { x: 100, y: -50, sprite: 'enemy_purple', B: 100, C: 2, E: 100 }
 };
 
 
@@ -273,6 +273,7 @@ var FireBall = function(x,y,rumbo) {
     
     this.x = x - this.w/2; 
     this.rumbo = rumbo;
+    console.log(rumbo);
     this.y = y - this.h; 
     
     
@@ -286,7 +287,7 @@ FireBall.prototype.step = function(dt)  {
     }else{
         this.x -= this.vx * dt;
     }
-    //this.vy = -5*this.x0^2 +6*this.x0 +100;
+    
     this.vy = this.vy+120;
     this.y += this.vy  * dt;
     if(this.y < -this.h) { this.board.remove(this); }

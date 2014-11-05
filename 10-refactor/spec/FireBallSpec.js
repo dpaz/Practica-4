@@ -28,6 +28,7 @@ describe("Clase Fireball",function(){
       var ship = new PlayerShip();
 
       board.add(ship);
+      Game.keys['fire'] = false;
       Game.keys['fbIzq'] = true;
       spyOn(board,'add').andCallThrough();;
       
@@ -38,6 +39,7 @@ describe("Clase Fireball",function(){
       Game.keys['fbDer'] = true;
       ship.step(1);        
       expect(board.add.calls.length).toBe(2);
+      console.log(board.objects);
       expect(board.objects[1].rumbo).toBe('izq');
       expect(board.objects[2].rumbo).toBe('der');
   });
