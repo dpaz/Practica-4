@@ -30,7 +30,7 @@ describe("Clase Fireball",function(){
       board.add(ship);
       Game.keys['fire'] = false;
       Game.keys['fbIzq'] = true;
-      spyOn(board,'add').andCallThrough();;
+      spyOn(board,'add').andCallThrough();
       
       ship.step(1);
       

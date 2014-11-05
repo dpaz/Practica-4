@@ -1,4 +1,4 @@
-describe("Clase GameBoard",function(){
+describe("Clase SPrite",function(){
   beforeEach(function(){
     loadFixtures('index.html');
     canvas = $('#game')[0];
@@ -41,5 +41,20 @@ describe("Clase GameBoard",function(){
     expect(misil.vy).toBe(-700);
     expect(misil.x).toBe(-1);
     expect(misil.y).toBe(-10);
+  });
+
+  it("Se dibujan los objetos",function(){
+    Game = oldGame;
+    Game.initialize("game",sprites,function(){});
+
+
+    spyOn(PlayerShip.prototype,'draw');
+    board = new GameBoard();
+    ship = new PlayerShip();
+    board.add(ship);
+    
+    board.draw(ctx);
+
+    expect(PlayerShip.prototype.draw).toHaveBeenCalled();
   });
 });
