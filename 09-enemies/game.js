@@ -145,7 +145,7 @@ var PlayerShip = function() {
     	}
 
     	this.reload-=dt;
-        if(!Game.keys['fire']){
+        if(!Game.keys['fire'] && !Game.keys['fbIzq'] && !Game.keys['fbDer']){
             this.ok = true;
         }
     	if(Game.keys['fire'] && this.reload < 0 && this.ok) {
@@ -304,24 +304,23 @@ var FireBall = function(x,y,rumbo) {
     this.x = x - this.w/2; 
     this.rumbo = rumbo;
     this.y = y - this.h; 
-    this.vx = -700;
-    this.x0 = 10;
+    this.vx = -150;
+    this.vy = -1600
+    
 };
 
 FireBall.prototype.step = function(dt)  {
     
     if(this.rumbo=='izq'){
-        console.log('entro izq')
         this.x += this.vx * dt;
-        this.x0 += this.x0 * dt;
-        console.log('salgo izq');
     }else{
         this.x -= this.vx * dt;
-        this.x0 -= this.x0 * dt;
     }
-    this.vy = -5*this.x0^2 +6*this.x0 +100;
+    //this.vy = -5*this.x0^2 +6*this.x0 +100;
+    this.vy = this.vy+120;
     this.y += this.vy  * dt;
     if(this.y < -this.h) { this.board.remove(this); }
+
 };
 
 FireBall.prototype.draw = function(ctx)  {
