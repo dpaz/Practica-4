@@ -152,5 +152,24 @@ describe("CollisionsSpec",function(){
     expect(board.remove).toHaveBeenCalledWith(ship);
     expect(board.remove.calls.length).toBe(2);
   });
+
+  it("Bola de fuego impacta con enemigos y sigue su camino",function(){
+    Game = oldGame;
+    Game.initialize("game",sprites,function(){});
+
+    enemy = new Enemy({x : 0, y: 0, sprite: 'enemy_purple',health:20})
+    fireball = new FireBall(32,64);
+    board = new GameBoard();
+    board.add(enemy);
+    board.add(fireball);
+    
+    spyOn(Enemy.prototype,'hit').andCallThrough();
+    spyOn(board,'remove');
+    board.step(0);
+    
+    expect(Enemy.prototype.hit).toHaveBeenCalled();
+    expect(board.remove).toHaveBeenCalledWith(enemy);
+    
+  })
 });
 

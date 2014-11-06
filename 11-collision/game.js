@@ -290,9 +290,9 @@ Enemy.prototype.step = function(dt) {
 Enemy.prototype.hit = function(damage) {
     this.health -= damage;
     if(this.health <= 0) {
-	this.board.add(new Explosion(this.x + this.w/2, 
-                                     this.y + this.h/2));
-	this.board.remove(this);
+    	this.board.add(new Explosion(this.x + this.w/2, 
+                                         this.y + this.h/2));
+    	this.board.remove(this);
     }
 }
 
@@ -326,6 +326,7 @@ var FireBall = function(x,y,rumbo) {
     this.rumbo = rumbo;
     console.log(rumbo);
     this.y = y - this.h; 
+    this.damage = 100;
     
     
 };
@@ -341,6 +342,13 @@ FireBall.prototype.step = function(dt)  {
     
     this.vy = this.vy+120;
     this.y += this.vy  * dt;
+
+    var collision = this.board.collide(this,OBJECT_ENEMY);
+    if(collision) {
+        collision.hit(this.damage);
+        
+    }
+
     if(this.y < -this.h) { this.board.remove(this); }
 
 };
