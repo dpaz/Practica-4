@@ -6,9 +6,10 @@
   varios tipos de sprites:
   
   - Los misiles tienen ahora una nueva propiedad: el daño (damage) que
-    producen cuando colisionan con una nave enemiga. Cuando un misil
-    colisione con una nave enemiga le infligirá un daño de cierta
-    cuantía a la nave enemiga con la que impacta, y desaparecerá.
+    infligen a una nave enemiga cuando colisionan con ella. Cuando un
+    misil colisione con una nave enemiga le infligirá un daño de
+    cierta cuantía (damage) a la nave enemiga con la que impacta, y
+    desaparecerá.
 
   - Las naves enemigas tienen ahora una nueva propiedad: su salud
     (health).  El daño ocasionado a una nave enemiga por un misil hará
@@ -46,35 +47,129 @@
 
   No interesa comprobar si se colisiona con cualquier otro objeto,
   sino sólo con los de ciertos tipos. El misil tiene que comprobar si
-  colisiona con enemigos. El enemigo tiene que comprobar si colisiona
-  con la nave del jugador. Para ello cada sprite tiene un tipo y
-  cuando se comprueba si un sprite ha colisionado con otros, se pasa
-  como segundo argumento a collide() el tipo de sprites con los que se
-  quiere ver si ha colisionado el objeto que se pasa como primer
-  argumento.
+  colisiona con naves enemigas. Por otro lado, tras moverse una nave
+  enemiga, ésta tiene que comprobar si colisiona con la nave del
+  jugador. Para ello cada sprite tiene un tipo y cuando se comprueba
+  si un sprite ha colisionado con otros, se pasa como segundo
+  argumento a collide() el tipo de sprites con los que se quiere ver
+  si ha colisionado el objeto que se pasa como primer argumento.
 
-  Cuando un objeto detecta que ha colisionado con otro llama al método
-  hit() del objeto con el que ha colisionado. El misil cuando llama a
-  hit() de una nave enemiga pasa como parámetro el daño que provoca
-  para que la nave enemiga pueda calcular la reducción de salud que
-  conlleva la colisión.
+  Cuando un objeto detecta que ha colisionado con otro, llama al
+  método hit() del objeto con el que ha colisionado. 
 
 
-  Efectos de las colisiones:
+  Efectos de las colisiones de un misil con una nave enemiga:
 
-  Cuando una nave enemiga recibe la llamada .hit() realizada por un
-  misil que ha detectado la colisión, recalcula su salud reduciéndola
-  en tantas unidades como el daño del misil indique, y si su salud
-  llega a 0 desaparece del tablero de juegos, produciéndose en su
-  lugar la animación de una explosión.
+    Cuando el misil llama al método hit() de una nave enemiga, pasa
+    como parámetro el daño que provoca para que la nave enemiga pueda
+    calcular la reducción de salud que conlleva la colisión. Cuando
+    una nave enemiga recibe una llamada a su método .hit() realizada
+    por un misil que ha detectado la colisión, la nave enemiga
+    recalcula su salud reduciéndola en tantas unidades como el daño
+    del misil indique, y si su salud llega a 0 desaparece del tablero
+    de juegos, produciéndose en su lugar la animación de una
+    explosión.
 
-  Cuando la nave del jugador recibe la llamada .hit() realizada por
-  una nave enemiga que ha detectado la colisión, desaparece.
+    El misil, tras informar llamando al métod hit() de la nave enemiga
+    con la que ha detectado colisión, desaparece.
 
-  El misil, tras informar llamando al métod hit() de la nave enemiga
-  con la que ha detectado colisión, desaparece.
 
-  La nave enemiga, tras informar llamando a hit() de la nave del
-  jugador, desaparece.
+  Efectos de las colisiones de una nave enemiga con la nave del jugador:
+
+    Cuando la nave del jugador recibe la llamada .hit() realizada por
+    una nave enemiga que ha detectado la colisión, la nave del jugador
+    desaparece del tablero.
+
+    La nave enemiga, tras informar llamando a hit() de la nave del
+    jugador, desaparece también.
 
 */
+
+describe("CollisionsSpec",function(){
+
+  beforeEach(function(){
+    loadFixtures('index.html');
+    canvas = $('#game')[0];
+    expect(canvas).toExist();
+    ctx = canvas.getContext('2d');
+    expect(ctx).toBeDefined();
+    oldGame = Game;
+    Game = {width: 320, height: 480};
+    var enemies = {
+      basic: { x: 100, y: -50, sprite: 'enemy_purple', B: 100, C: 2, E: 100, health: 20 }
+    };
+
+  });
+  afterEach(function(){
+    Game = oldGame;
+  });
+
+
+  it("Se aplica el daño deseado",function(){
+    Game = oldGame;
+
+    Game.initialize("game",sprites,function(){});
+
+    board = new GameBoard();
+    enemy = new Enemy(enemies.basic);
+    board.add(enemy);
+    enemy.hit(10);
+    expect(enemy.health).toBe(10);
+    spyOn(board,'remove');
+    enemy.hit(10);
+    expect(board.remove).toHaveBeenCalled();
+  });
+
+  it("Se detecta colisiones enemigas frente misiles",function(){
+    Game = oldGame;
+    Game.initialize("game",sprites,function(){});
+    enemy =new Enemy({x : 0, y: 0, sprite: 'enemy_purple'});
+    misil = new PlayerMissile(1,10);
+    board = new GameBoard();
+    board.add(enemy);
+    board.add(misil);
+    spyOn(Enemy.prototype,'hit');
+    
+    spyOn(board,'remove');
+    board.step(0);
+    expect(Enemy.prototype.hit).toHaveBeenCalled();
+    expect(board.remove).toHaveBeenCalledWith(misil);
+  });
+
+  it("Se detecta colision nave con enemigos",function(){
+    Game = oldGame;
+    Game.initialize("game",sprites,function(){});
+    ship = new PlayerShip();
+    enemy =new Enemy({x : ship.x, y: ship.y, sprite: 'enemy_purple'});
+    board = new GameBoard();
+    board.add(enemy);
+    board.add(ship);
+    
+    spyOn(PlayerShip.prototype,'hit').andCallThrough();
+    spyOn(board,'remove');
+    board.step(0);
+    expect(PlayerShip.prototype.hit).toHaveBeenCalled();
+    expect(board.remove).toHaveBeenCalledWith(ship);
+    expect(board.remove.calls.length).toBe(2);
+  });
+
+  it("Bola de fuego impacta con enemigos y sigue su camino",function(){
+    Game = oldGame;
+    Game.initialize("game",sprites,function(){});
+
+    enemy = new Enemy({x : 0, y: 0, sprite: 'enemy_purple',health:20})
+    fireball = new FireBall(32,64);
+    board = new GameBoard();
+    board.add(enemy);
+    board.add(fireball);
+    
+    spyOn(Enemy.prototype,'hit').andCallThrough();
+    spyOn(board,'remove');
+    board.step(0);
+    
+    expect(Enemy.prototype.hit).toHaveBeenCalled();
+    expect(board.remove).toHaveBeenCalledWith(enemy);
+    
+  })
+});
+

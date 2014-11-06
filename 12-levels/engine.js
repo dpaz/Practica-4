@@ -32,7 +32,7 @@ var Game = new function() {
     };
 
     // Gestión de la entrada (teclas para izda/derecha y disparo)
-    var KEY_CODES = { 37:'left', 39:'right', 32 :'fire' };
+    var KEY_CODES = { 37:'left', 39:'right', 32 :'fire',66:'fbIzq',78:'fbDer' };
     this.keys = {};
 
     this.setupInput = function() {
@@ -171,13 +171,13 @@ var GameBoard = function() {
 
     // Añade obj a objects
     this.add = function(obj) { 
-	obj.board=this;  // Para que obj pueda referenciar el tablero
-	this.objects.push(obj); 
-	
-	// Actualizamos el contador de objetos de este tipo
-	this.cnt[obj.type] = (this.cnt[obj.type] || 0) + 1;
+    	obj.board=this;  // Para que obj pueda referenciar el tablero
+    	this.objects.push(obj); 
+    	
+    	// Actualizamos el contador de objetos de este tipo
+    	this.cnt[obj.type] = (this.cnt[obj.type] || 0) + 1;
 
-	return obj; 
+    	return obj; 
     };
 
     // Los siguientes 3 métodos gestionan el borrado.  Cuando un board
@@ -356,32 +356,32 @@ Level.prototype.step = function(dt) {
     // Var recorriendo las baterías de enemigos (filas en levelData)
     while (curShip = this.levelData[idx]) {
 
-	// Si ya ha pasado el tiempo en el que hay que crear enemigos
-	// de esta batería, se añaden a remove para que sean borrados
-	// una vez acabado el bucle. ¡No se eliminan directamente
-	// porque el bucle está iterando sobre la estructura de datos!
-	// Es el mismo patrón que utilizamos cuando borramos sprites
-	// del tablero de juegos: marcamos en remove para borrar y
-	// borramos una vez concluído el bucle.
-	if(this.t > curShip[1]) {
-	    remove.push(curShip);
-	} else if(curShip[0] < this.t) {
-	    // Ha llegado la hora de crear un nuevo enemigo de esta batería
-	    var enemy = enemies[curShip[3]],
-            override = curShip[4];
+    	// Si ya ha pasado el tiempo en el que hay que crear enemigos
+    	// de esta batería, se añaden a remove para que sean borrados
+    	// una vez acabado el bucle. ¡No se eliminan directamente
+    	// porque el bucle está iterando sobre la estructura de datos!
+    	// Es el mismo patrón que utilizamos cuando borramos sprites
+    	// del tablero de juegos: marcamos en remove para borrar y
+    	// borramos una vez concluído el bucle.
+    	if(this.t > curShip[1]) {
+    	    remove.push(curShip);
+    	} else if(curShip[0] < this.t) {
+    	    // Ha llegado la hora de crear un nuevo enemigo de esta batería
+    	    var enemy = enemies[curShip[3]],
+                override = curShip[4];
 
-	    this.board.add(new Enemy(enemy,override));
+    	    this.board.add(new Enemy(enemy,override));
 
-	    // Recuerda el formato de cada batería de enemigos definida en levelData
-	    //  Comienzo, Fin,   Frecuencia,  Tipo,       Override
-	    // [ 0,       4000,  500,         'step',     { x: 100 } ]
+    	    // Recuerda el formato de cada batería de enemigos definida en levelData
+    	    //  Comienzo, Fin,   Frecuencia,  Tipo,       Override
+    	    // [ 0,       4000,  500,         'step',     { x: 100 } ]
 
-	    // Modificamos la definición de esta batería para
-	    // programar la creación del siguiente enemigo dentro de
-	    // Frecuencia ms
-	    curShip[0] += curShip[2];
-	}
-	idx++; // Pasamos a la siguiente batería de enemigos
+    	    // Modificamos la definición de esta batería para
+    	    // programar la creación del siguiente enemigo dentro de
+    	    // Frecuencia ms
+    	    curShip[0] += curShip[2];
+    	}
+    	idx++; // Pasamos a la siguiente batería de enemigos
     }
 
     // Elimina del nivel una batería de enemigos del nivel si ha sido
@@ -389,8 +389,8 @@ Level.prototype.step = function(dt) {
     // ventana de tiempo en la que hay que crear enemigos de dicha
     // batería
     for(var i=0,len=remove.length;i<len;i++) {
-	var remIdx = this.levelData.indexOf(remove[i]);
-	if(remIdx != -1) this.levelData.splice(remIdx,1);
+    	var remIdx = this.levelData.indexOf(remove[i]);
+    	if(remIdx != -1) this.levelData.splice(remIdx,1);
     }
 
     // Comprueba si hay que terminar el nivel porque no quedan más
