@@ -84,3 +84,73 @@
     jugador, desaparece también.
 
 */
+
+describe("CollisionsSpec",function(){
+
+  beforeEach(function(){
+    loadFixtures('index.html');
+    canvas = $('#game')[0];
+    expect(canvas).toExist();
+    ctx = canvas.getContext('2d');
+    expect(ctx).toBeDefined();
+    oldGame = Game;
+    Game = {width: 320, height: 480};
+    var enemies = {
+      basic: { x: 100, y: -50, sprite: 'enemy_purple', B: 100, C: 2, E: 100, health: 20 }
+    };
+
+  });
+  afterEach(function(){
+    Game = oldGame;
+  });
+
+
+  it("Se aplica el daño deseado",function(){
+    Game = oldGame;
+
+    Game.initialize("game",sprites,function(){});
+
+    board = new GameBoard();
+    enemy = new Enemy(enemies.basic);
+    board.add(enemy);
+    enemy.hit(10);
+    expect(enemy.health).toBe(10);
+    spyOn(board,'remove');
+    enemy.hit(10);
+    expect(board.remove).toHaveBeenCalled();
+  });
+
+  it("Se detecta colisiones enemigas frente misiles",function(){
+    Game = oldGame;
+    Game.initialize("game",sprites,function(){});
+    enemy =new Enemy({x : 0, y: 0, sprite: 'enemy_purple'});
+    misil = new PlayerMissile(1,10);
+    board = new GameBoard();
+    board.add(enemy);
+    board.add(misil);
+    spyOn(Enemy.prototype,'hit');
+    
+    spyOn(board,'remove');
+    board.step(0);
+    expect(Enemy.prototype.hit).toHaveBeenCalled();
+    expect(board.remove).toHaveBeenCalledWith(misil);
+  });
+
+  it("Se detecta colision nave con enemigos",function(){
+    Game = oldGame;
+    Game.initialize("game",sprites,function(){});
+    ship = new PlayerShip();
+    enemy =new Enemy({x : ship.x, y: ship.y, sprite: 'enemy_purple'});
+    board = new GameBoard();
+    board.add(enemy);
+    board.add(ship);
+    
+    spyOn(PlayerShip.prototype,'hit').andCallThrough();
+    spyOn(board,'remove');
+    board.step(0);
+    expect(PlayerShip.prototype.hit).toHaveBeenCalled();
+    expect(board.remove).toHaveBeenCalledWith(ship);
+    expect(board.remove.calls.length).toBe(2);
+  });
+});
+
