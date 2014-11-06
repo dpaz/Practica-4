@@ -53,7 +53,8 @@ var startGame = function() {
                                     playGame));
 };
 
-
+var nlevels = 2;
+var winlevels = 0;
 
 // Definición del nivel level1.  
 
@@ -67,34 +68,61 @@ var startGame = function() {
 // override que substituyen a los de la plantilla en enemies para ese
 // enemigo.
 
-var level1 = [
-  //  Comienzo, Fin,   Frecuencia,  Tipo,       Override
-    [ 0,        4000,  500,         'step'                 ],
-    [ 6000,     13000, 800,         'ltr'                  ],
-    [ 10000,    16000, 400,         'circle'               ],
-    [ 17800,    20000, 500,         'straight', { x: 50  } ],
-    [ 18200,    20000, 500,         'straight', { x: 90  } ],
-    [ 18200,    20000, 500,         'straight', { x: 10  } ],
-    [ 22000,    25000, 400,         'wiggle',   { x: 150 } ],
-    [ 22000,    25000, 400,         'wiggle',   { x: 100 } ]
-];
 
+var levels = [
+    [
+      //  Comienzo, Fin,   Frecuencia,  Tipo,       Override
+        [ 0,        4000,  500,         'step'                 ],
+        [ 6000,     13000, 800,         'ltr'                  ],
+        [ 10000,    16000, 400,         'circle'               ],
+        [ 17800,    20000, 500,         'straight', { x: 50  } ],
+        [ 18200,    20000, 500,         'straight', { x: 90  } ],
+        [ 18200,    20000, 500,         'straight', { x: 10  } ],
+        [ 22000,    25000, 400,         'wiggle',   { x: 150 } ],
+        [ 22000,    25000, 400,         'wiggle',   { x: 100 } ]
+    ],
+    [
+      //  Comienzo, Fin,   Frecuencia,  Tipo,       Override
+        [ 0,        4000,  200,         'wiggle'               ],
+        [ 0,        4000,  200,         'wiggle',   { x: 150 } ],
+        [ 6000,     13000, 800,         'ltr'                  ],
+        [ 10000,    16000, 400,         'straight'             ],
+        [ 18200,    20000, 500,         'step',     { x: 90  } ],
+        [ 18200,    20000, 500,         'step',     { x: 10  } ],
+        [ 22000,    25000, 400,         'circle',   { x: 50  } ],
+        [ 22000,    25000, 400,         'circle'               ]
+    ]
+]
 
 
 var playGame = function() {
+    
     var board = new GameBoard();
     board.add(new PlayerShip());
-
+    
     // Se un nuevo nivel al tablero de juego, pasando la definición de
     // nivel level1 y la función callback a la que llamar si se ha
     // ganado el juego
-    board.add(new Level(level1, winGame));
+    board.add(new Level(levels[winlevels], winLevel));
     Game.setBoard(3,board);
 };
 
 // Llamada cuando han desaparecido todos los enemigos del nivel sin
 // que alcancen a la nave del jugador
+var winLevel = function(){
+    winlevels ++;
+    
+    if(winlevels< nlevels){
+        Game.setBoard(3,new TitleScreen("You win!", 
+                                    "Press fire to next level",
+                                    playGame));
+    }
+    else{winGame();}
+    
+}
+
 var winGame = function() {
+    winlevels = 0;
     Game.setBoard(3,new TitleScreen("You win!", 
                                     "Press fire to play again",
                                     playGame));
@@ -382,7 +410,7 @@ Explosion.prototype.step = function(dt) {
     this.frame = Math.floor(this.subFrame++ / 2);
     if(this.subFrame >= 24) {
 	   this.board.remove(this);
-       console.log(this.board.objects[0].sprite);
+       
        if(this.board.objects[0].sprite!= 'ship'){ loseGame(); }    
     }
 }
@@ -394,7 +422,6 @@ var FireBall = function(x,y,rumbo) {
     
     this.x = x - this.w/2; 
     this.rumbo = rumbo;
-    console.log(rumbo);
     this.y = y - this.h; 
     this.damage = 100;
     
