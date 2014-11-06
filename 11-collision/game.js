@@ -13,7 +13,7 @@ var enemies = {
     // B, C y E substituirán a los valores por defecto definidos en la
     // variable baseParameters del constructor Enemy(). Ver
     // comentarios en el código del constructor al final del fichero.
-    basic: { x: 100, y: -50, sprite: 'enemy_purple', B: 100, C: 4, E: 100, health: 20 }
+    basic: { x: 100, y: -50, sprite: 'enemy_purple', B: 100, C: 2, E: 100, health: 20 }
 };
 
 var OBJECT_PLAYER        =  1,
@@ -127,29 +127,45 @@ var PlayerShip = function() {
     this.reload = this.reloadTime;
     this.x = Game.width/2 - this.w / 2;
     this.y = Game.height - 10 - this.h;
+    this.ok = true;
 
     this.step = function(dt) {
-	if(Game.keys['left']) { this.vx = -this.maxVel; }
-	else if(Game.keys['right']) { this.vx = this.maxVel; }
-	else { this.vx = 0; }
+    	if(Game.keys['left']) { this.vx = -this.maxVel; }
+    	else if(Game.keys['right']) { this.vx = this.maxVel; }
+    	else { this.vx = 0; }
 
-	this.x += this.vx * dt;
+    	this.x += this.vx * dt;
 
-	if(this.x < 0) { this.x = 0; }
-	else if(this.x > Game.width - this.w) { 
-	    this.x = Game.width - this.w 
-	}
+    	if(this.x < 0) { this.x = 0; }
+    	else if(this.x > Game.width - this.w) { 
+    	    this.x = Game.width - this.w 
+    	}
 
-	this.reload-=dt;
-	if(Game.keys['fire'] && this.reload < 0) {
-	    // Esta pulsada la tecla de disparo y ya ha pasado el tiempo reload
-	    Game.keys['fire'] = false;
-	    this.reload = this.reloadTime;
+    	this.reload-=dt;
+        if(!Game.keys['fire'] && !Game.keys['fbIzq'] && !Game.keys['fbDer']){
+                this.ok = true;
+        }
+        if(Game.keys['fire'] && this.reload < 0 && this.ok) {
+            // Esta pulsada la tecla de disparo y ya ha pasado el tiempo reload
+            this.ok = false;
+            this.reload = this.reloadTime;
 
-	    // Se añaden al gameboard 2 misiles 
-	    this.board.add(new PlayerMissile(this.x,this.y+this.h/2));
-	    this.board.add(new PlayerMissile(this.x+this.w,this.y+this.h/2));
-	}
+            // Se añaden al gameboard 2 misiles 
+            this.board.add(new PlayerMissile(this.x,this.y+this.h/2));
+            this.board.add(new PlayerMissile(this.x+this.w,this.y+this.h/2));
+        }
+        if(Game.keys['fbIzq'] && this.reload < 0 && this.ok){
+            this.ok = false;
+            this.reload = this.reloadTime;           
+            this.board.add(new FireBall(this.x,this.y+this.h/2,"izq"));
+               
+        }
+        if(Game.keys['fbDer'] && this.reload < 0 && this.ok){
+            this.ok = false;
+            this.reload = this.reloadTime;     
+            this.board.add(new FireBall(this.x+this.w,this.y+this.h/2,"der"));
+                
+        }
     }
 }
 
@@ -299,6 +315,35 @@ Explosion.prototype.step = function(dt) {
 	this.board.remove(this);
     }
 }
+
+
+var FireBall = function(x,y,rumbo) {
+    
+    this.setup('explosion', { vx: -150, vy: -1600, maxVel: 200 ,frame:3});
+
+    
+    this.x = x - this.w/2; 
+    this.rumbo = rumbo;
+    console.log(rumbo);
+    this.y = y - this.h; 
+    
+    
+};
+FireBall.prototype = new Sprite();
+
+FireBall.prototype.step = function(dt)  {
+    
+    if(this.rumbo=='izq'){
+        this.x += this.vx * dt;
+    }else{
+        this.x -= this.vx * dt;
+    }
+    
+    this.vy = this.vy+120;
+    this.y += this.vy  * dt;
+    if(this.y < -this.h) { this.board.remove(this); }
+
+};
 
 
 $(function() {

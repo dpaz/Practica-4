@@ -157,7 +157,7 @@ var PlayerShip = function() {
         this.reload = this.reloadTime;     
         this.board.add(new FireBall(this.x+this.w,this.y+this.h/2,"der"));
             
-        }
+    }
     }
 }
 
