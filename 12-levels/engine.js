@@ -17,18 +17,18 @@ var Game = new function() {
 
     // Inicializa el juego
     this.initialize = function(canvasElementId,sprite_data,callback) {
-	this.canvas = document.getElementById(canvasElementId)
-	this.width = this.canvas.width;
-	this.height= this.canvas.height;
+    	this.canvas = document.getElementById(canvasElementId)
+    	this.width = this.canvas.width;
+    	this.height= this.canvas.height;
 
-	this.ctx = this.canvas.getContext && this.canvas.getContext('2d');
-	if(!this.ctx) { return alert("Please upgrade your browser to play"); }
+    	this.ctx = this.canvas.getContext && this.canvas.getContext('2d');
+    	if(!this.ctx) { return alert("Please upgrade your browser to play"); }
 
-	this.setupInput();
+    	this.setupInput();
 
-	this.loop(); 
+    	this.loop(); 
 
-	SpriteSheet.load(sprite_data,callback);
+    	SpriteSheet.load(sprite_data,callback);
     };
 
     // Gestión de la entrada (teclas para izda/derecha y disparo)
@@ -54,23 +54,23 @@ var Game = new function() {
 
 
     // Bucle del juego
-    var boards = [];
-
+    boards = [];
+    this.tableros = boards;
     this.loop = function() { 
 	// segundos transcurridos
 	var dt = 30 / 1000;
 
-	// Para cada board, de 0 en adelante, se 
-	// llama a su método step() y luego a draw()
-	for(var i=0,len = boards.length;i<len;i++) {
-	    if(boards[i]) { 
-		boards[i].step(dt);
-		boards[i].draw(Game.ctx);
-	    }
-	}
+    	// Para cada board, de 0 en adelante, se 
+    	// llama a su método step() y luego a draw()
+    	for(var i=0,len = boards.length;i<len;i++) {
+    	    if(boards[i]) { 
+    		boards[i].step(dt);
+    		boards[i].draw(Game.ctx);
+    	    }
+    	}
 
-	// Ejecutar dentro de 30 ms
-	setTimeout(Game.loop,30);
+    	// Ejecutar dentro de 30 ms
+    	setTimeout(Game.loop,30);
     };
     
     // Para cambiar el panel activo en el juego.
